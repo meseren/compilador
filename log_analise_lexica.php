@@ -2,16 +2,12 @@
 	error_reporting(0);
 	ini_set('display_errors', 1);
 
-	include __DIR__.'\Funcoes.class.php';
-	include __DIR__.'\Token.class.php';
+	include __DIR__.'\class\Funcoes.class.php';
+	include __DIR__.'\class\Token.class.php';
 
 	$Funcoes = new Funcoes();
 
-	print '<pre>';
-
-	
 	$codigo = str_split($_POST['codigo']);
-	
 	$caracteresInvalidos = array();
 	$Tokens = array();
 	$token = '';
@@ -21,7 +17,6 @@
 	{ 
 
 		if($Funcoes->verificaValidadeCaractere(strtolower($codigo[$key]))){
-			
 			
 			#Primeira validação: Elimina os includes
 			if($codigo[$key] == '#')
@@ -48,6 +43,7 @@
 					$Tokens[] = new Token('palavra_reservada', $token);
 					$token = '';
 				}
+				
 			}else{
 
 				if(($codigo[$key+1] == ' ' || $codigo[$key+1] == '=') && !$Funcoes->verificaSimboloEspecial($codigo[$key]))
@@ -73,9 +69,7 @@
 		}else{
 			$caracteresInvalidos[] = $codigo[$key];
 		}
-
 	}
-
 ?>
 
 <table>
