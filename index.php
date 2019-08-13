@@ -3,7 +3,7 @@
 		
 		<textarea name="codigo" id="codigo"></textarea>
 
-		<button type="´submit" id="enviar"> Enviar</button>
+		<button type="submit" id="enviar"> Enviar</button>
 	</form>
 
 </html>
