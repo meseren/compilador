@@ -12,6 +12,7 @@
 	$Tokens = array();
 	$token = '';
 	$cont = 0;
+	$ignora = false;
 
 	foreach ($codigo as $key => $value) 
 	{ 
@@ -30,45 +31,66 @@
 				unset($codigo[$key]);
 				
 				$key++;
-			}else{
-
-				$token .= $codigo[$key];
 			}
 
+			//Remove strings
+			if($codigo[$key] == "\"")
+			{	
+				$Tokens[] = new Token('simbolo_especial', $codigo[$key]);
+				unset($codigo[$key]);
+				$key++;
+
+				while($codigo[$key] != '"')
+				{
+					unset($codigo[$key]);
+					$key++;
+				}
+
+				$Tokens[] = new Token('simbolo_especial', $codigo[$key]);
+
+				unset($codigo[$key]);
+				$key++;	
+			}
+	
 			#Segunda Validação
+			while($Funcoes->verificaLetraPermitida($codigo[$key]))
+			{
+				$token .= $codigo[$key];
+
+				unset($codigo[$key]);
+				$key++;
+			}
+
 			if($Funcoes->verificaPalavraReservada($token))
 			{
-				if($codigo[$key+1] == ' ' || $codigo[$key+1] == '(')
-				{
-					$Tokens[] = new Token('palavra_reservada', $token);
-					$token = '';
-				}
-				
+				$Tokens[] = new Token('palavra_reservada', $token);
+				$token = '';
+
 			}else{
-
-				if(($codigo[$key+1] == ' ' || $codigo[$key+1] == '=') && !$Funcoes->verificaSimboloEspecial($codigo[$key]))
-				{
+				if(!empty($token)){
 					$Tokens[] = new Token('identificador', $token);
-					$token = '';
-				}
-				else if($Funcoes->verificaSimboloComposto($codigo[$key].$codigo[$key+1]))
-				{
-					$Tokens[] = new Token('simbolo_composto', $codigo[$key].$codigo[$key+1]); 
-					$key++;
-					$token = '';
-				}
-				else if($Funcoes->verificaSimboloEspecial($codigo[$key]))
-				{
-					$Tokens[] = new Token('simbolo_especial', $codigo[$key]);
-					$token = '';
-				}else{
-					$caracteresInvalidos[] = $token;
+					$token = '';				
 				}
 
+				if($Funcoes->verificaSimboloComposto($codigo[$key].$codigo[$key+1]))
+				{
+					$Tokens[] = new Token('simbolo_composto', $codigo[$key].$codigo[$key+1]);
+					$token = '';
+					$key += 3;
+
+				}else if($Funcoes->verificaSimboloEspecial($codigo[$key])){
+					$Tokens[] = new Token('simbolo_especial', $codigo[$key]);
+					unset($codigo[$key]);
+						
+					$token = '';
+					$key++;
+				}
 			}
+			
 		}else{
 			$caracteresInvalidos[] = $codigo[$key];
 		}
+
 	}
 ?>
 
