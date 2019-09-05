@@ -114,3 +114,82 @@
 		?>
 	</tbody>
 </table>
+
+<?php
+    //Regras
+    $tabela[1][0]= "E";
+    $tabela[2][0]= "T";
+    $tabela[3][0]= "S";
+    $tabela[4][0]= "F";
+    $tabela[5][0]= "G";
+
+    //Tokens
+    $tabela[0][1]= "id";
+    $tabela[0][2]= "num";
+    $tabela[0][3]= "+";
+    $tabela[0][4]= "-";
+    $tabela[0][5]= "*";
+    $tabela[0][6]= "/";
+    $tabela[0][7]= "(";
+    $tabela[0][8]= ")";
+    $tabela[0][9]= "$";
+
+    //Preencher
+    $tabela["E"]["id"]= "TS";
+    $tabela["E"]["num"]= "TS";
+    $tabela["E"]["("]= "TS";
+    $tabela["T"]["id"]= "FG";
+    $tabela["T"]["T"]= "FG";
+    $tabela["T"]["("]= "FG";
+    $tabela["3"]["3"]= "+TS";
+    $tabela["3"]["-"]= "-TS";
+    $tabela["3"][")"]= "Vazio";
+    $tabela["3"]["$"]= "Vazio";
+    $tabela["G"]["+"]= "Vazio";
+    $tabela["G"]["G"]= "Vazio";
+    $tabela["G"]["*"]= "*FG";
+    $tabela["G"]["/"]= "/FG";
+    $tabela["G"][")"]= "Vazio";
+    $tabela["G"]["$"]= "Vazio";
+    $tabela["F"]["id"]= "id";
+    $tabela["F"]["num"]= "num";
+    $tabela["F"]["("]= "(E)";
+    
+    //Calculo
+	$cadeia = "id+num";
+
+	$tokens[0] = "id";
+	$tokens[1] = "+";
+	$tokens[2] = "id";
+	$tokens[3] = "$";
+
+	$pilha = array('0'=> 'E', '');
+	$i = 0;
+	
+	foreach ($tokens as $key => $value) {
+		# code...
+	}
+	
+	if( isset($tabela[$pilha[0]][$tokens[$i]])){
+		$producao = $tabela[$pilha[0]][$tokens[$i]];
+
+		array_pop($pilha);
+
+		for ($i=0; $i < strlen($producao); $i++) 
+			array_push($pilha, $producao[$i]);
+	
+		print_r($pilha);exit;
+	}
+
+	exit;
+	
+    for($i=0;$i<5;$i++){
+        for($j=0;$j<9;$j++){
+            if($tabela[$i][$j]==$token[$j]){
+				echo "achou";
+			}else{
+				echo "falha";
+			}
+        }
+    }
+?>
