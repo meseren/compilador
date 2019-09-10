@@ -139,12 +139,12 @@
     $tabela["E"]["num"]= "TS";
     $tabela["E"]["("]= "TS";
     $tabela["T"]["id"]= "FG";
-    $tabela["T"]["T"]= "FG";
+    $tabela["T"]["num"]= "FG";
     $tabela["T"]["("]= "FG";
-    $tabela["3"]["3"]= "+TS";
-    $tabela["3"]["-"]= "-TS";
-    $tabela["3"][")"]= "Vazio";
-    $tabela["3"]["$"]= "Vazio";
+    $tabela["S"]["3"]= "+TS";
+    $tabela["S"]["-"]= "-TS";
+    $tabela["S"][")"]= "Vazio";
+    $tabela["S"]["$"]= "Vazio";
     $tabela["G"]["+"]= "Vazio";
     $tabela["G"]["G"]= "Vazio";
     $tabela["G"]["*"]= "*FG";
@@ -163,33 +163,21 @@
 	$tokens[2] = "id";
 	$tokens[3] = "$";
 
-	$pilha = array('0'=> 'E', '');
+	$pilha = array(0 => '$', 1 => 'E');
 	$i = 0;
 	
-	foreach ($tokens as $key => $value) {
-		# code...
-	}
+	foreach ($tokens as $k => $value) {
+		if( isset($tabela[$pilha[count($pilha)-1]][$value])){
+			$producao = strrev($tabela[$pilha[count($pilha)-1]][$value]);
+			array_pop($pilha);
 	
-	if( isset($tabela[$pilha[0]][$tokens[$i]])){
-		$producao = $tabela[$pilha[0]][$tokens[$i]];
-
-		array_pop($pilha);
-
-		for ($i=0; $i < strlen($producao); $i++) 
-			array_push($pilha, $producao[$i]);
-	
-		print_r($pilha);exit;
+			for ($j=0; $j < strlen($producao); $j++)
+				array_push($pilha, $producao[$j]);
+		}
 	}
 
-	exit;
+	print_r($pilha)
 	
-    for($i=0;$i<5;$i++){
-        for($j=0;$j<9;$j++){
-            if($tabela[$i][$j]==$token[$j]){
-				echo "achou";
-			}else{
-				echo "falha";
-			}
-        }
-    }
+
+
 ?>
