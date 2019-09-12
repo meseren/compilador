@@ -124,16 +124,16 @@
     $tabela["T"]["id"]= "FG";
     $tabela["T"]["num"]= "FG";
     $tabela["T"]["("]= "FG";
-    $tabela["S"]["3"]= "+TS";
+    $tabela["S"]["+"]= "+TS";
     $tabela["S"]["-"]= "-TS";
-    $tabela["S"][")"]= "Vazio";
-    $tabela["S"]["$"]= "Vazio";
-    $tabela["G"]["+"]= "Vazio";
-    $tabela["G"]["G"]= "Vazio";
+    $tabela["S"][")"]= "$";
+    $tabela["S"]["$"]= "$";
+    $tabela["G"]["+"]= "$";
+    $tabela["G"]["G"]= "$";
     $tabela["G"]["*"]= "*FG";
     $tabela["G"]["/"]= "/FG";
-    $tabela["G"][")"]= "Vazio";
-    $tabela["G"]["$"]= "Vazio";
+    $tabela["G"][")"]= "$";
+    $tabela["G"]["$"]= "$";
     $tabela["F"]["id"]= "id";
     $tabela["F"]["num"]= "num";
     $tabela["F"]["("]= "(E)";
@@ -147,6 +147,10 @@
 	$tokens[3] = "*";
 	$tokens[4] = "id";
 	$tokens[5] = "$";
+
+	$view['PILHA'] = array();
+	$view['CADEIA'] = array();
+	$view['REGRA'] = array();
 
 	$pilhaTokens = $tokens;
 
@@ -173,28 +177,38 @@
 				array_pop($pilha);
 				unset($pilhaTokens[0]);
 				$pilhaTokens = array_values($pilhaTokens);
+				$i++;
 				
 			}else{
-				print 'erro';
+				print 'erro1';
+				break;
 			}
 		}else
-		if( isset($tabela[$pilha[count($pilha)-1]][$tokens[$i]])){
-			if($tabela[$pilha[count($pilha)-1]][$tokens[$i]] == 'Vazio'){
-
+		if(isset($tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]])){
+			if($tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]] == '$'){
+				array_pop($pilha);
 			}else 
-			if($Funcoes->verificaSimboloTerminal($tabela[$pilha[count($pilha)-1]][$tokens[$i]])){
-				$producao = $tabela[$pilha[count($pilha)-1]][$tokens[$i]];	
+			if($Funcoes->verificaSimboloTerminal($tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]])){
+				$producao = $tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]];	
 				array_pop($pilha);
 				array_push($pilha, $producao);
 			}else{
-				$producao = strrev($tabela[$pilha[count($pilha)-1]][$tokens[$i]]);
+				$producao = strrev($tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]]);
 				array_pop($pilha);
 				for ($j=0; $j < strlen($producao); $j++)
 				array_push($pilha, $producao[$j]);
 			}
-			
+		}else{
+			print $pilha[count($pilha)-1];
+			print $tokens[$i];
+			print 'erro2';
+			break;
 		}
 
+		$view['PILHA'][] = $pilha;
+		$view['CEDEIA'][] = $pilhaTokens;
+		$view['REGRA'][] = $pilha[count($pilha)-1].' -> '.$tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]];
+		print '<br><br>i = '.$i;
 		print '<br><br> Reconhecidos =';
 		print_r($reconhecidos);
 		print '<br><br> Pilha = ';
@@ -202,10 +216,9 @@
 		print '<br><br> Pilha Tokens= ';
 		print_r($pilhaTokens);
 		print '<Br>--------------------<br>';
-		$i++;
 	}
 
-	
-
+	print '<pre>';
+	print_r($view);
 
 ?>
