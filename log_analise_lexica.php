@@ -116,23 +116,6 @@
 </table>
 
 <?php
-    //Regras
-    $tabela[1][0]= "E";
-    $tabela[2][0]= "T";
-    $tabela[3][0]= "S";
-    $tabela[4][0]= "F";
-    $tabela[5][0]= "G";
-
-    //Tokens
-    $tabela[0][1]= "id";
-    $tabela[0][2]= "num";
-    $tabela[0][3]= "+";
-    $tabela[0][4]= "-";
-    $tabela[0][5]= "*";
-    $tabela[0][6]= "/";
-    $tabela[0][7]= "(";
-    $tabela[0][8]= ")";
-    $tabela[0][9]= "$";
 
     //Preencher
     $tabela["E"]["id"]= "TS";
@@ -160,23 +143,68 @@
 
 	$tokens[0] = "id";
 	$tokens[1] = "+";
-	$tokens[2] = "id";
-	$tokens[3] = "$";
+	$tokens[2] = "num";
+	$tokens[3] = "*";
+	$tokens[4] = "id";
+	$tokens[5] = "$";
+
+	$pilhaTokens = $tokens;
+
+	$reconhecidos = array();
 
 	$pilha = array(0 => '$', 1 => 'E');
 	$i = 0;
 	
-	foreach ($tokens as $k => $value) {
-		if( isset($tabela[$pilha[count($pilha)-1]][$value])){
-			$producao = strrev($tabela[$pilha[count($pilha)-1]][$value]);
-			array_pop($pilha);
-	
-			for ($j=0; $j < strlen($producao); $j++)
+	print '===== Inicio =====<br><br>';
+	print 'Pilha =';
+	print_r($pilha);
+	print '<br>';
+	print 'Pilha Tokens =';
+	print_r($pilhaTokens);
+	print '<br>';
+
+	while(count($pilha) > 1) {
+		
+		print '<br><br>Token: '.$tokens[$i];
+
+		if($Funcoes->verificaSimboloTerminal($pilha[count($pilha)-1])){
+			if($pilha[count($pilha)-1] == $pilhaTokens[0]){
+				$reconhecidos[] = $pilhaTokens[0];
+				array_pop($pilha);
+				unset($pilhaTokens[0]);
+				$pilhaTokens = array_values($pilhaTokens);
+				
+			}else{
+				print 'erro';
+			}
+		}else
+		if( isset($tabela[$pilha[count($pilha)-1]][$tokens[$i]])){
+			if($tabela[$pilha[count($pilha)-1]][$tokens[$i]] == 'Vazio'){
+
+			}else 
+			if($Funcoes->verificaSimboloTerminal($tabela[$pilha[count($pilha)-1]][$tokens[$i]])){
+				$producao = $tabela[$pilha[count($pilha)-1]][$tokens[$i]];	
+				array_pop($pilha);
+				array_push($pilha, $producao);
+			}else{
+				$producao = strrev($tabela[$pilha[count($pilha)-1]][$tokens[$i]]);
+				array_pop($pilha);
+				for ($j=0; $j < strlen($producao); $j++)
 				array_push($pilha, $producao[$j]);
+			}
+			
 		}
+
+		print '<br><br> Reconhecidos =';
+		print_r($reconhecidos);
+		print '<br><br> Pilha = ';
+		print_r($pilha);
+		print '<br><br> Pilha Tokens= ';
+		print_r($pilhaTokens);
+		print '<Br>--------------------<br>';
+		$i++;
 	}
 
-	print_r($pilha)
 	
 
 
