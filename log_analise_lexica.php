@@ -167,7 +167,7 @@
 		
 		$view['PILHA'][] = $pilha;
 		$view['CADEIA'][] = $pilhaTokens;
-		$view['REGRA'][] = $pilha[count($pilha)-1].' -> '.$tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]];
+		$view['REGRA'][] = $pilha[count($pilha)-1].' <i style="font-size: 12px;" class="fa fa-arrow-right" aria-hidden="true"></i> '.$tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]];
 	}
 
 	$view['REGRA'][count($view['REGRA'])-1] = 'SUCESSO'; 
@@ -181,6 +181,7 @@
 
 			<head>
 				<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+				<link rel="stylesheet" href="css/font-awesome.css">
 			</head>
 
 			<center>
@@ -244,7 +245,7 @@
 				<head>
 					<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 				</head>
-				
+
 				<div style="position: absolute;left: 50%;top: 50%;margin-left: -110px;margin-top: -40px;">
 					<h4>Ops... Erro!</h4>
 					<br><br>
