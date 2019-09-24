@@ -36,7 +36,7 @@
 			//Remove strings
 			if($codigo[$key] == "\"")
 			{	
-				$Tokens[] = new Token('simbolo_especial', $codigo[$key]);
+				$tokens[] = $codigo[$key];
 				unset($codigo[$key]);
 				$key++;
 
@@ -46,14 +46,14 @@
 					$key++;
 				}
 
-				$Tokens[] = new Token('simbolo_especial', $codigo[$key]);
+				$tokens[] = $codigo[$key];
 
 				unset($codigo[$key]);
 				$key++;	
 			}
 	
 			#Segunda Validação
-			while($Funcoes->verificaLetraPermitida($codigo[$key]))
+			while($Funcoes->verificaLetraPermitida($codigo[$key]) || $Funcoes->verificaNumeroPermitida($codigo[$key]))
 			{
 				$token .= $codigo[$key];
 
@@ -63,23 +63,23 @@
 
 			if($Funcoes->verificaPalavraReservada($token))
 			{
-				$Tokens[] = new Token('palavra_reservada', $token);
+				$tokens[] = $token;
 				$token = '';
 
 			}else{
 				if(!empty($token)){
-					$Tokens[] = new Token('identificador', $token);
+					$tokens[] = $token;
 					$token = '';				
 				}
 
 				if($Funcoes->verificaSimboloComposto($codigo[$key].$codigo[$key+1]))
 				{
-					$Tokens[] = new Token('simbolo_composto', $codigo[$key].$codigo[$key+1]);
+					$tokens[] = $codigo[$key].$codigo[$key+1];
 					$token = '';
 					$key += 3;
 
 				}else if($Funcoes->verificaSimboloEspecial($codigo[$key])){
-					$Tokens[] = new Token('simbolo_especial', $codigo[$key]);
+					$tokens[] = $codigo[$key];
 					unset($codigo[$key]);
 						
 					$token = '';
@@ -92,30 +92,8 @@
 		}
 
 	}
-?>
 
-<table>
-	<thead>
-		<tr>
-			<th>Token</th>
-			<th>Símbolo</th>
-		</tr>
-	</thead>
-	<tbody>
-		<?php
-			foreach ($Tokens as $key => $value) {
-		?>	
-				<tr>
-					<td><?php print $Tokens[$key]->simbolo; ?></td>
-					<td><?php print $Tokens[$key]->tipo; ?></td>
-				</tr>
-		<?php
-			}
-		?>
-	</tbody>
-</table>
-
-<?php
+	$tokens[count($tokens)] = '$';
 
     //Preencher
     $tabela["E"]["id"]= "TS";
@@ -137,16 +115,6 @@
     $tabela["F"]["id"]= "id";
     $tabela["F"]["num"]= "num";
     $tabela["F"]["("]= "(E)";
-    
-    //Calculo
-	$cadeia = "id+num";
-
-	$tokens[0] = "id";
-	$tokens[1] = "+";
-	$tokens[2] = "num";
-	$tokens[3] = "*";
-	$tokens[4] = "id";
-	$tokens[5] = "$";
 
 	$view['PILHA'] = array();
 	$view['CADEIA'] = array();
@@ -159,17 +127,7 @@
 	$pilha = array(0 => '$', 1 => 'E');
 	$i = 0;
 	
-	print '===== Inicio =====<br><br>';
-	print 'Pilha =';
-	print_r($pilha);
-	print '<br>';
-	print 'Pilha Tokens =';
-	print_r($pilhaTokens);
-	print '<br>';
-
 	while(count($pilha) > 1) {
-		
-		print '<br><br>Token: '.$tokens[$i];
 
 		if($Funcoes->verificaSimboloTerminal($pilha[count($pilha)-1])){
 			if($pilha[count($pilha)-1] == $pilhaTokens[0]){
@@ -180,45 +138,121 @@
 				$i++;
 				
 			}else{
-				print 'erro1';
+				$erro = true;
 				break;
 			}
-		}else
-		if(isset($tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]])){
-			if($tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]] == '$'){
-				array_pop($pilha);
-			}else 
-			if($Funcoes->verificaSimboloTerminal($tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]])){
-				$producao = $tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]];	
-				array_pop($pilha);
-				array_push($pilha, $producao);
-			}else{
-				$producao = strrev($tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]]);
-				array_pop($pilha);
-				for ($j=0; $j < strlen($producao); $j++)
-				array_push($pilha, $producao[$j]);
-			}
-		}else{
-			print $pilha[count($pilha)-1];
-			print $tokens[$i];
-			print 'erro2';
-			break;
-		}
 
+		}else
+			if(isset($tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]]))
+			{
+				if($tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]] == '$'){
+					array_pop($pilha);
+				}else 
+					if($Funcoes->verificaSimboloTerminal($tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]]))
+					{
+						$producao = $tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]];	
+						array_pop($pilha);
+						array_push($pilha, $producao);
+					}else{
+						$producao = strrev($tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]]);
+						array_pop($pilha);
+						for ($j=0; $j < strlen($producao); $j++)
+						array_push($pilha, $producao[$j]);
+					}
+			}else{
+				$erro = true;
+				break;
+			}
+
+		
 		$view['PILHA'][] = $pilha;
-		$view['CEDEIA'][] = $pilhaTokens;
+		$view['CADEIA'][] = $pilhaTokens;
 		$view['REGRA'][] = $pilha[count($pilha)-1].' -> '.$tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]];
-		print '<br><br>i = '.$i;
-		print '<br><br> Reconhecidos =';
-		print_r($reconhecidos);
-		print '<br><br> Pilha = ';
-		print_r($pilha);
-		print '<br><br> Pilha Tokens= ';
-		print_r($pilhaTokens);
-		print '<Br>--------------------<br>';
 	}
 
-	print '<pre>';
-	print_r($view);
+	$view['REGRA'][count($view['REGRA'])-1] = 'SUCESSO'; 
 
-?>
+	?>
+
+	<?php
+
+		if(!$erro){
+	?>
+
+			<head>
+				<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+			</head>
+
+			<center>
+				<div style="width: 55%;">
+					<table class="table table-striped">
+
+						<thead>
+							<tr>
+								<th>PILHA</th>
+								<th>CADEIA</th>
+								<th>REGRA</th>
+							</tr>
+						</thead>
+
+					<?php
+						foreach ($view['PILHA'] as $key => $value) {
+							?>
+
+							<tr>
+								
+								<td>
+									<?php 
+
+										foreach($view['PILHA'][$key] as $i => $val)
+										{
+											print $val;
+										}
+									?>
+									
+								</td>
+								
+								<td>
+									<?php 
+
+										foreach($view['CADEIA'][$key] as $i => $val)
+										{
+											print $val;
+										}
+									?>
+									
+								</td>
+								<td><?php print $view['REGRA'][$key]?></td>
+							</tr>
+
+							<?php
+						}
+					?>
+					</table>
+
+					<br><br>
+
+					<a href="index.php"><button type="button" class="btn btn-primary">Voltar</button></a>
+
+					<br><br>
+
+				</div>
+			</center>
+	<?php
+		}else{
+			?>
+				<head>
+					<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+				</head>
+				
+				<div style="position: absolute;left: 50%;top: 50%;margin-left: -110px;margin-top: -40px;">
+					<h4>Ops... Erro!</h4>
+					<br><br>
+
+					<a href="index.php"><button type="button" class="btn btn-primary">Tentar novamente</button></a>
+
+					<br><br>
+				</div>
+			<?php
+		}
+	?>

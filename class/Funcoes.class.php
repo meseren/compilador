@@ -19,6 +19,14 @@ class Funcoes
 		return false;
 	}
 
+	public function verificaNumeroPermitida($token) 
+	{
+		if(in_array($token, $this->digitosPermitidos))
+			return true;
+
+		return false;
+	}
+
 	public function verificaSimboloTerminal($token) 
 	{
 		if(in_array($token, $this->simbolosTerminais))
