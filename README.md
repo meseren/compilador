@@ -1,2 +1,10 @@
-# compilador
-Compiladores - 6º Semestre - Ciência da Computação
+# Compiladores
+## Ciência da Computação
+### 6º Semestre
+
+##Parte 1: Analisador Léxico
+- Extração e classificação dos tokens
+- Eliminação de delimitadores e comentários
+- Conversão Numérica (usaremos somente números inteiros).
+
+
