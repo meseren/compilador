@@ -17,10 +17,17 @@ Considerando a gramática abaixo, elabore o projeto para realizar o reconhecimen
 
 Gramática para reconhecimento de expressões aritméticas.
 
+```
 - E  ->  TS
 - T -> FG
 - S -> + TS | - TS | λ
 - G -> * FG | / FG | λ
 - F ->  id |num | (E)
+```
 
 *Obs. Para os tokens de entrada, permitir a leitura de um arquivo e/ou um string pelo teclado contendo a cadeia a ser analisada.
+
+## Autores
+- **Allan Morishigue**
+- **Leonardo Clemente**
+- **Melissa Seren**
