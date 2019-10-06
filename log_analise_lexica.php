@@ -65,7 +65,7 @@
 			}
 
 			if($Funcoes->verificaNumeroPermitida($token)){
-				$tiposTokens[] = new Token('constante_inteira', $token);
+				$tiposTokens[] = new Token('constante', $token);
 				$token = '';
 			}else{
 
