@@ -6,7 +6,8 @@
 
 	<center>
 		<div style="position: absolute;left: 50%;top: 50%;margin-left: -110px;margin-top: -40px;">
-			<form action="log_analise_lexica.php" method="POST">
+			<h4>Análise Sintática</h4>
+			<form action="log_analise_sintatica.php" method="POST">
 				<textarea name="codigo" id="codigo"></textarea>
 				<br><br>
 				<button type="submit" id="enviar" class="btn btn-primary"> Enviar</button>

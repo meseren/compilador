@@ -22,6 +22,8 @@
 			#Primeira validação: Elimina os includes
 			if($codigo[$key] == '#')
 			{
+				$tiposTokens[] = new Token('diretiva', $codigo[$key]);
+
 				while ($codigo[$key] != '>') {
 					unset($codigo[$key]);
 
@@ -36,7 +38,8 @@
 			//Remove strings
 			if($codigo[$key] == "\"")
 			{	
-				$tokens[] = $codigo[$key];
+				$tiposTokens[] = new Token('simbolo_especial', $codigo[$key]);
+
 				unset($codigo[$key]);
 				$key++;
 
@@ -46,7 +49,7 @@
 					$key++;
 				}
 
-				$tokens[] = $codigo[$key];
+				$tiposTokens[] = new Token('simbolo_especial', $codigo[$key]);
 
 				unset($codigo[$key]);
 				$key++;	
@@ -61,199 +64,72 @@
 				$key++;
 			}
 
-			if($Funcoes->verificaPalavraReservada($token))
-			{
-				$tokens[] = $token;
+			if($Funcoes->verificaNumeroPermitida($token)){
+				$tiposTokens[] = new Token('constante_inteira', $token);
 				$token = '';
-
 			}else{
-				if(!empty($token)){
-					$tokens[] = $token;
-					$token = '';				
-				}
 
-				if($Funcoes->verificaSimboloComposto($codigo[$key].$codigo[$key+1]))
+				if($Funcoes->verificaPalavraReservada($token))
 				{
-					$tokens[] = $codigo[$key].$codigo[$key+1];
+					$tiposTokens[] = new Token('palavra_reservada', $token);
 					$token = '';
-					$key += 3;
 
-				}else if($Funcoes->verificaSimboloEspecial($codigo[$key])){
-					$tokens[] = $codigo[$key];
-					unset($codigo[$key]);
-						
-					$token = '';
-					$key++;
+				}else{
+					if(!empty($token)){
+						$tiposTokens[] = new Token('identificador', $token);
+						$token = '';				
+					}
+
+					if($Funcoes->verificaSimboloComposto($codigo[$key].$codigo[$key+1]))
+					{
+						$tiposTokens[] = new Token('simbolo_composto', $codigo[$key].$codigo[$key+1]);
+						$token = '';
+						$key += 3;
+
+					}else if($Funcoes->verificaSimboloEspecial($codigo[$key]) && !($Funcoes->verificaSimboloComposto($codigo[$key-1].$codigo[$key]))){
+						$tiposTokens[] = new Token('simbolo_especial', $codigo[$key]);
+						unset($codigo[$key]);
+							
+						$token = '';
+						$key++;
+					}
 				}
+
 			}
-			
 		}else{
 			$caracteresInvalidos[] = $codigo[$key];
 		}
 
-	}
 
-	$tokens[count($tokens)] = '$';
+	}	
+	?>
 
-    //Preencher
-    $tabela["E"]["id"]= "TS";
-    $tabela["E"]["num"]= "TS";
-    $tabela["E"]["("]= "TS";
-    $tabela["T"]["id"]= "FG";
-    $tabela["T"]["num"]= "FG";
-    $tabela["T"]["("]= "FG";
-    $tabela["S"]["+"]= "+TS";
-    $tabela["S"]["-"]= "-TS";
-    $tabela["S"][")"]= "$";
-    $tabela["S"]["$"]= "$";
-    $tabela["G"]["+"]= "$";
-    $tabela["G"]["G"]= "$";
-    $tabela["G"]["*"]= "*FG";
-    $tabela["G"]["/"]= "/FG";
-    $tabela["G"][")"]= "$";
-    $tabela["G"]["$"]= "$";
-    $tabela["F"]["id"]= "id";
-    $tabela["F"]["num"]= "num";
-    $tabela["F"]["("]= "(E)";
+	<head>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<link rel="stylesheet" href="css/font-awesome.css">
+	</head>
 
-	$view['PILHA'] = array();
-	$view['CADEIA'] = array();
-	$view['REGRA'] = array();
+	<div class="row" style="width: 100%;">
+		<div class="col-md-6">
+			<table class="table table-striped">
 
-	$pilhaTokens = $tokens;
+				<thead>
+					<tr>
+						<th>TOKEN</th>
+						<th>TIPO</th>
+					</tr>
+				</thead>
 
-	$reconhecidos = array();
-
-	$pilha = array(0 => '$', 1 => 'E');
-	$i = 0;
-	
-	while(count($pilha) > 1) {
-
-		if($Funcoes->verificaSimboloTerminal($pilha[count($pilha)-1])){
-			if($pilha[count($pilha)-1] == $pilhaTokens[0]){
-				$reconhecidos[] = $pilhaTokens[0];
-				array_pop($pilha);
-				unset($pilhaTokens[0]);
-				$pilhaTokens = array_values($pilhaTokens);
-				$i++;
-				
-			}else{
-				$erro = true;
-				break;
-			}
-
-		}else
-			if(isset($tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]]))
-			{
-				if($tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]] == '$'){
-					array_pop($pilha);
-				}else 
-					if($Funcoes->verificaSimboloTerminal($tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]]))
-					{
-						$producao = $tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]];	
-						array_pop($pilha);
-						array_push($pilha, $producao);
-					}else{
-						$producao = strrev($tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]]);
-						array_pop($pilha);
-						for ($j=0; $j < strlen($producao); $j++)
-						array_push($pilha, $producao[$j]);
+				<?php
+					foreach ($tiposTokens as $key => $token) {
+						?>
+						<tr>
+							<td><?php print $token->simbolo; ?></td>
+							<td><?php print $token->tipo; ?></td>
+						</tr>
+						<?php
 					}
-			}else{
-				$erro = true;
-				break;
-			}
-
-		
-		$view['PILHA'][] = $pilha;
-		$view['CADEIA'][] = $pilhaTokens;
-		$view['REGRA'][] = $pilha[count($pilha)-1].' <i style="font-size: 12px;" class="fa fa-arrow-right" aria-hidden="true"></i> '.$tabela[$pilha[count($pilha)-1]][$pilhaTokens[0]];
-	}
-
-	$view['REGRA'][count($view['REGRA'])-1] = 'SUCESSO'; 
-
-	?>
-
-	<?php
-
-		if(!$erro){
-	?>
-
-			<head>
-				<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-				<link rel="stylesheet" href="css/font-awesome.css">
-			</head>
-
-			<center>
-				<div style="width: 55%;">
-					<table class="table table-striped">
-
-						<thead>
-							<tr>
-								<th>PILHA</th>
-								<th>CADEIA</th>
-								<th>REGRA</th>
-							</tr>
-						</thead>
-
-					<?php
-						foreach ($view['PILHA'] as $key => $value) {
-							?>
-
-							<tr>
-								
-								<td>
-									<?php 
-
-										foreach($view['PILHA'][$key] as $i => $val)
-										{
-											print $val;
-										}
-									?>
-									
-								</td>
-								
-								<td>
-									<?php 
-
-										foreach($view['CADEIA'][$key] as $i => $val)
-										{
-											print $val;
-										}
-									?>
-									
-								</td>
-								<td><?php print $view['REGRA'][$key]?></td>
-							</tr>
-
-							<?php
-						}
-					?>
-					</table>
-
-					<br><br>
-
-					<a href="index.php"><button type="button" class="btn btn-primary">Voltar</button></a>
-
-					<br><br>
-
-				</div>
-			</center>
-	<?php
-		}else{
-			?>
-				<head>
-					<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-				</head>
-
-				<div style="position: absolute;left: 50%;top: 50%;margin-left: -110px;margin-top: -40px;">
-					<h4>Ops... Erro!</h4>
-					<br><br>
-
-					<a href="index.php"><button type="button" class="btn btn-primary">Tentar novamente</button></a>
-
-					<br><br>
-				</div>
-			<?php
-		}
-	?>
+				?>
+			</table>
+		</div>
+	</div>
