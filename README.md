@@ -25,7 +25,7 @@ Gramática para reconhecimento de expressões aritméticas.
 - F ->  id |num | (E)
 ```
 
-*Obs. Para os tokens de entrada, permitir a leitura de um arquivo e/ou um string pelo teclado contendo a cadeia a ser analisada.
+*Obs. Para os tokens de entrada, permitir a leitura de um arquivo e/ou um string pelo teclado contendo a cadeia a ser analisada*
 
 ## Autores
 - **Allan Morishigue**
