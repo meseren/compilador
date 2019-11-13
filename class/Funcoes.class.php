@@ -4,13 +4,36 @@
 class Funcoes
 {
 
-	protected $letrasPermitidas = array('a', 'b', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
+	protected $letrasPermitidas = array('a', 'b', 'd','c','e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
 	protected $digitosPermitidos = array('0','1','2','3','4','5','6','7','8', '9', '10', '11', '12', '13', '14');
 	protected $simbolosEspeciais = array('{','}','(',')',';',',','+','-','/','*','=','<','>','!','%', '#', '"');
+	protected $operadoresAritmeticos = array('+', '*', '/', '-');
 	protected $simbolosCompostos = array('+=', '-=', '/=', '++', '--', '*=', '<=', '>=');
-	protected $palavrasReservadas = array('int', 'main', 'float', 'double', 'if', 'for', 'while', 'do', 'printf');
+	protected $palavrasReservadas = array('int', 'main', 'float', 'double', 'if', 'for', 'while', 'do', 'printf', 'scanf');
 	protected $simbolosTerminais = array('id', 'num', '+', '-', '/', '*', '(', ')', '$');
 	protected $simbolosRegras = array('E', 'S', 'G', 'T', 'F');
+
+	public function verificaOperador($token) 
+	{
+		switch ($token) {
+			case '+':
+				return 'SOMA';
+
+			case '-':
+				return 'SUBT';
+
+			case '*':
+				return 'MULT';
+
+			case '/':
+				return 'DIVI';
+
+			default:
+				return false;
+		}
+
+		return false;
+	}
 
 	public function verificaLetraPermitida($token) 
 	{

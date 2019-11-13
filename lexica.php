@@ -5,10 +5,10 @@
 	</head>
 
 	<center>
-		<div style="position: absolute;left: 50%;top: 50%;margin-left: -110px;margin-top: -40px;">
+		<div>
 			<h4>Análise Léxica</h4>
 			<form action="log_analise_lexica.php" method="POST">
-				<textarea name="codigo" id="codigo"></textarea>
+				<textarea name="codigo" id="codigo" style="overflow: auto;resize: vertical;min-width: 1280px;min-height: 420px;"></textarea>
 				<br><br>
 				<button type="submit" id="enviar" class="btn btn-primary"> Enviar</button>
 			</form>

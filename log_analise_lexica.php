@@ -11,8 +11,16 @@
 	$caracteresInvalidos = array();
 	$Tokens = array();
 	$token = '';
-	$cont = 0;
-	$ignora = false;
+
+	#Auxiliares para o tradutor, mais conhecido como gambiarra
+	$tradutor = '';
+	$declaracao_variavel = false;
+	$qt_variavel = 0;
+	$leitura = false;
+	$impressao = false;
+	$atribuicao = false;
+	$linha_nova = false;
+	$operador = array();
 
 	foreach ($codigo as $key => $value) 
 	{ 
@@ -29,13 +37,13 @@
 
 					$key++;
 				}
-				//Elimina o '>'
+				#Elimina o '>'
 				unset($codigo[$key]);
 				
 				$key++;
 			}
 
-			//Remove strings
+			#Remove strings
 			if($codigo[$key] == "\"")
 			{	
 				$tiposTokens[] = new Token('simbolo_especial', $codigo[$key]);
@@ -66,17 +74,70 @@
 
 			if($Funcoes->verificaNumeroPermitida($token)){
 				$tiposTokens[] = new Token('constante', $token);
+
+				if($atribuicao)
+					$tradutor .= 'CRCT '.strtoupper($token)."\n";
+
 				$token = '';
+
 			}else{
 
 				if($Funcoes->verificaPalavraReservada($token))
 				{
 					$tiposTokens[] = new Token('palavra_reservada', $token);
+
+					switch ($token) {
+						case 'main':
+							$tradutor .= 'INPP'."\n";
+							$declaracao_variavel = false;
+							break;
+
+						case 'int':
+							$declaracao_variavel = true;
+							break;
+						
+						case 'scanf':
+							$tradutor .= 'LEIT'."\n";
+							$leitura = true;
+							break;
+
+						case 'printf':
+							$impressao = true;
+							break;
+
+						default:
+							# code...
+							break;
+					}
+
 					$token = '';
 
 				}else{
 					if(!empty($token)){
 						$tiposTokens[] = new Token('identificador', $token);
+
+						if($declaracao_variavel)
+							$qt_variavel++;
+
+						if($leitura){
+							$leitura = false;
+							$tradutor .= 'ARMZ '.strtoupper($token)."\n";
+						}
+
+						if($impressao)
+							$tradutor .= 'CRVL '.strtoupper($token)."\nIMPR \n";
+						
+						if($atribuicao)
+							$tradutor .= 'CRVL '.strtoupper($token)."\n";
+
+						if(!$variavel){
+							$var = $token;
+						}
+
+						$variavel = true;
+
+
+						
 						$token = '';				
 					}
 
@@ -88,6 +149,35 @@
 
 					}else if($Funcoes->verificaSimboloEspecial($codigo[$key]) && !($Funcoes->verificaSimboloComposto($codigo[$key-1].$codigo[$key]))){
 						$tiposTokens[] = new Token('simbolo_especial', $codigo[$key]);
+
+						if($atribuicao){
+							if($Funcoes->verificaOperador($codigo[$key])){
+								$operador[] = $Funcoes->verificaOperador($codigo[$key]);
+							}
+						}
+
+						if($declaracao_variavel && $codigo[$key] == ';'){
+							$tradutor .= 'AMEM '.$qt_variavel."\n";
+						}
+
+						if($codigo[$key] == ';'){
+							$declaracao_variavel = false;
+							$impressao = false;
+							$linha_nova = true;
+
+							if($atribuicao){
+								foreach ($operador as $key => $value) {
+									$tradutor .= $value."\n".'ARMZ '.strtoupper($var)."\n";
+								}
+							}
+
+							$atribuicao = false;
+						}
+
+						if($variavel && $codigo[$key] == '='){
+							$atribuicao = true;
+						}
+						
 						unset($codigo[$key]);
 							
 						$token = '';
@@ -100,8 +190,12 @@
 			$caracteresInvalidos[] = $codigo[$key];
 		}
 
+	}
 
-	}	
+	print '<pre>';
+	print $tradutor;
+	//print_r($tiposTokens);
+	exit;
 	?>
 
 	<head>
