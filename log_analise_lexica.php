@@ -20,7 +20,9 @@
 	$impressao = false;
 	$atribuicao = false;
 	$linha_nova = false;
-	$operador = array();
+	$if = false;
+	$encontrou_operador = false;
+	$operador = '';
 
 	foreach ($codigo as $key => $value) 
 	{ 
@@ -75,8 +77,22 @@
 			if($Funcoes->verificaNumeroPermitida($token)){
 				$tiposTokens[] = new Token('constante', $token);
 
-				if($atribuicao)
-					$tradutor .= 'CRCT '.strtoupper($token)."\n";
+				if($atribuicao){
+					if($encontrou_operador){
+						$tradutor .= 'CRCT '.strtoupper($token)."\n".strtoupper($operador)."\n";
+					}else{
+						$tradutor .= 'CRCT '.strtoupper($token)."\n";
+					}
+				}
+
+				if($variavel_if){
+					if($encontrou_operador){
+						$tradutor .= 'CRCT '.strtoupper($token)."\n".strtoupper($operador)."\n";
+						$variavel_if = false;
+					}else{
+						$tradutor .= 'CRCT '.strtoupper($token)."\n";
+					}
+				}
 
 				$token = '';
 
@@ -105,6 +121,11 @@
 							$impressao = true;
 							break;
 
+						case 'if':
+							$if = true;
+							$variavel_if = true;
+							$atribuicao = false;
+
 						default:
 							# code...
 							break;
@@ -127,32 +148,53 @@
 						if($impressao)
 							$tradutor .= 'CRVL '.strtoupper($token)."\nIMPR \n";
 						
-						if($atribuicao)
-							$tradutor .= 'CRVL '.strtoupper($token)."\n";
-
-						if(!$variavel){
-							$var = $token;
+						if($atribuicao){
+							if($encontrou_operador){
+								$tradutor .= 'CRVL '.strtoupper($token)."\n".strtoupper($operador)."\n";
+							}else{
+								$tradutor .= 'CRVL '.strtoupper($token)."\n";
+							}
 						}
+
+						if($variavel_if){
+							if($encontrou_operador){
+								$tradutor .= 'CRVL '.strtoupper($token)."\n".strtoupper($operador)."\n";
+								$variavel_if = false;
+							}else{
+								$tradutor .= 'CRVL '.strtoupper($token)."\n";
+							}
+						}
+
+						if(!$variavel)
+							$var = $token;
 
 						$variavel = true;
 
-
-						
 						$token = '';				
 					}
 
 					if($Funcoes->verificaSimboloComposto($codigo[$key].$codigo[$key+1]))
 					{
 						$tiposTokens[] = new Token('simbolo_composto', $codigo[$key].$codigo[$key+1]);
+
+						if($atribuicao){
+							if($Funcoes->verificaOperador($codigo[$key].$codigo[$key+1])){
+								$operador = $Funcoes->verificaOperador($codigo[$key].$codigo[$key+1]);
+								$encontrou_operador = true;
+							}
+						}
+
 						$token = '';
 						$key += 3;
 
 					}else if($Funcoes->verificaSimboloEspecial($codigo[$key]) && !($Funcoes->verificaSimboloComposto($codigo[$key-1].$codigo[$key]))){
 						$tiposTokens[] = new Token('simbolo_especial', $codigo[$key]);
 
-						if($atribuicao){
+						if($atribuicao || $if){
 							if($Funcoes->verificaOperador($codigo[$key])){
-								$operador[] = $Funcoes->verificaOperador($codigo[$key]);
+
+								$operador = $Funcoes->verificaOperador($codigo[$key]);
+								$encontrou_operador = true;
 							}
 						}
 
@@ -164,14 +206,27 @@
 							$declaracao_variavel = false;
 							$impressao = false;
 							$linha_nova = true;
+							$variavel = false;
+							$encontrou_operador = false;
 
-							if($atribuicao){
-								foreach ($operador as $key => $value) {
-									$tradutor .= $value."\n".'ARMZ '.strtoupper($var)."\n";
-								}
-							}
+							if($atribuicao)
+								$tradutor .= 'ARMZ '.strtoupper($var)."\n";
 
+							$atribuicao = false;		
+						}
+
+						if($if && $codigo[$key] == '{'){
+							$tradutor .= 'DSVF L1'."\n";
+							$encontrou_operador = false;
+							$variavel = false;
 							$atribuicao = false;
+							$var = '';
+						}
+
+						if($if && $codigo[$key] == '}'){
+							$tradutor .= 'L1 NADA'."\n";
+							$atribuicao = false;
+							$if = false;
 						}
 
 						if($variavel && $codigo[$key] == '='){

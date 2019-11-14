@@ -28,6 +28,24 @@ class Funcoes
 			case '/':
 				return 'DIVI';
 
+			case '==':
+				return 'CMIG';
+
+			case '!=':
+				return 'CMDG';
+
+			case '<=':
+				return 'CMEG';
+
+			case '>=':
+				return 'CMAG';
+
+			case '>':
+				return 'CMMA';
+
+			case '<':
+				return 'CMME';
+
 			default:
 				return false;
 		}
