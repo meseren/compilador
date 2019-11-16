@@ -23,6 +23,9 @@
 	$if = false;
 	$encontrou_operador = false;
 	$operador = '';
+	$else = false;
+	$l = 1;
+	$while = false;
 
 	foreach ($codigo as $key => $value) 
 	{ 
@@ -85,10 +88,10 @@
 					}
 				}
 
-				if($variavel_if){
+				if($variavel_laco){
 					if($encontrou_operador){
 						$tradutor .= 'CRCT '.strtoupper($token)."\n".strtoupper($operador)."\n";
-						$variavel_if = false;
+						$variavel_laco = false;
 					}else{
 						$tradutor .= 'CRCT '.strtoupper($token)."\n";
 					}
@@ -123,8 +126,23 @@
 
 						case 'if':
 							$if = true;
-							$variavel_if = true;
+							$else = false;
+							$variavel_laco = true;
 							$atribuicao = false;
+							break;
+
+						case 'else':
+							$if = false;
+							$else = true;
+							break;
+
+						case 'while':
+							$variavel_laco = true;
+							$while = true;
+							$tradutor .= 'L'.$l.' NADA'."\n";
+							$marcacao_while = $l;
+							$l++;
+							break;
 
 						default:
 							# code...
@@ -156,10 +174,10 @@
 							}
 						}
 
-						if($variavel_if){
+						if($variavel_laco){
 							if($encontrou_operador){
 								$tradutor .= 'CRVL '.strtoupper($token)."\n".strtoupper($operador)."\n";
-								$variavel_if = false;
+								$variavel_laco = false;
 							}else{
 								$tradutor .= 'CRVL '.strtoupper($token)."\n";
 							}
@@ -177,7 +195,7 @@
 					{
 						$tiposTokens[] = new Token('simbolo_composto', $codigo[$key].$codigo[$key+1]);
 
-						if($atribuicao){
+						if($atribuicao || $if || $else || $while){
 							if($Funcoes->verificaOperador($codigo[$key].$codigo[$key+1])){
 								$operador = $Funcoes->verificaOperador($codigo[$key].$codigo[$key+1]);
 								$encontrou_operador = true;
@@ -190,9 +208,8 @@
 					}else if($Funcoes->verificaSimboloEspecial($codigo[$key]) && !($Funcoes->verificaSimboloComposto($codigo[$key-1].$codigo[$key]))){
 						$tiposTokens[] = new Token('simbolo_especial', $codigo[$key]);
 
-						if($atribuicao || $if){
+						if($atribuicao || $if || $else || $while){
 							if($Funcoes->verificaOperador($codigo[$key])){
-
 								$operador = $Funcoes->verificaOperador($codigo[$key]);
 								$encontrou_operador = true;
 							}
@@ -216,7 +233,8 @@
 						}
 
 						if($if && $codigo[$key] == '{'){
-							$tradutor .= 'DSVF L1'."\n";
+							$l++;
+							$tradutor .= 'DSVF L'.$l."\n";
 							$encontrou_operador = false;
 							$variavel = false;
 							$atribuicao = false;
@@ -224,15 +242,47 @@
 						}
 
 						if($if && $codigo[$key] == '}'){
-							$tradutor .= 'L1 NADA'."\n";
 							$atribuicao = false;
 							$if = false;
+						}
+
+						if($else && $codigo[$key] == '}'){
+							$atribuicao = false;
+							$else = false;
+							$tradutor .= 'L'.$l.' NADA'."\n";
+							$l++;
+						}
+
+						if($else && $codigo[$key] == '{'){
+							$tradutor .= 'L'.$l.' NADA'."\n";
+							$l++;
+							$tradutor .= 'DSVS L'.$l."\n";
+							$encontrou_operador = false;
+							$variavel = false;
+							$atribuicao = false;
+							$var = '';
+						}
+
+						if($while && $codigo[$key] == '{'){							
+							$tradutor .= 'DSVF L'.$l."\n";
+							$encontrou_operador = false;
+							$variavel = false;
+							$atribuicao = false;
+							$var = '';
+						}
+
+						if($while && $codigo[$key] == '}'){
+							$tradutor .= 'DSVS L'.$marcacao_while."\n";
+							$atribuicao = false;
+							$while = false;
+							$tradutor .= 'L'.$l.' NADA'."\n";
+							$l++;
 						}
 
 						if($variavel && $codigo[$key] == '='){
 							$atribuicao = true;
 						}
-						
+
 						unset($codigo[$key]);
 							
 						$token = '';
@@ -246,7 +296,8 @@
 		}
 
 	}
-
+	$tradutor .= 'DMEM'.$qt_variavel."\n";
+	$tradutor .= 'PARA'."\n";
 	print '<pre>';
 	print $tradutor;
 	//print_r($tiposTokens);

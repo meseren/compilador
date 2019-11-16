@@ -1,0 +1,20 @@
+main() {
+ int a,b,c,d;
+
+	scanf("%d", &n);
+	a=0; 
+        b=1; 
+        d=1;
+	while(b<=d )
+	{
+            a = b+c;
+            b = a;
+            d = c;
+            c = 2+1;
+	}
+
+       if(b>c){
+             a = b * c;
+       }
+	printf ("%d %d",b, a);
+}

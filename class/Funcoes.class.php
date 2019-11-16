@@ -9,7 +9,7 @@ class Funcoes
 	protected $simbolosEspeciais = array('{','}','(',')',';',',','+','-','/','*','=','<','>','!','%', '#', '"');
 	protected $operadoresAritmeticos = array('+', '*', '/', '-');
 	protected $simbolosCompostos = array('+=', '-=', '/=', '++', '--', '*=', '<=', '>=');
-	protected $palavrasReservadas = array('int', 'main', 'float', 'double', 'if', 'for', 'while', 'do', 'printf', 'scanf');
+	protected $palavrasReservadas = array('int', 'main', 'float', 'double', 'if', 'else', 'for', 'while', 'do', 'printf', 'scanf');
 	protected $simbolosTerminais = array('id', 'num', '+', '-', '/', '*', '(', ')', '$');
 	protected $simbolosRegras = array('E', 'S', 'G', 'T', 'F');
 
